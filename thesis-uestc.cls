@@ -50,23 +50,22 @@
 \ifwindows
   \setCJKmainfont[AutoFakeBold=true]{SimSun}
   \newCJKfontfamily{\heiti}{SimHei}
+  \newCJKfontfamily{\kaiti}{Kaiti SC}
   \newfontfamily{\heiti@letter}{SimHei}
   \setallmainfonts{Times New Roman}
 \else
 \ifmacosx
   \setCJKmainfont[AutoFakeBold=true]{Songti SC}
   \newCJKfontfamily{\heiti}{STHeiti}
+  \newCJKfontfamily{\kaiti}{Kaiti SC}
   \newfontfamily{\heiti@letter}{STHeiti}
   \setallmainfonts{Times New Roman}
 \else
-  \setCJKmainfont[AutoFakeBold=true]{fzsong.ttf}
-  \newCJKfontfamily{\heiti}{fzhei.ttf}
-  \newfontfamily{\heiti@letter}{fzhei.ttf}
-  \setallmainfonts[
-    BoldFont=timesbd.ttf,
-    ItalicFont=timesi.ttf,
-    BoldItalicFont=timesbi.ttf,
-  ]{times.ttf}
+  \setCJKmainfont[AutoFakeBold=true]{Songti SC}
+  \newCJKfontfamily{\heiti}{STHeiti}
+  \newCJKfontfamily{\kaiti}{Kaiti SC}
+  \newfontfamily{\heiti@letter}{STHeiti}
+  \setallmainfonts{Times New Roman}
 \fi
 \fi
 
@@ -181,6 +180,9 @@
 
 \titleformat{\chapter}[block]
   {\centering\fontsize{15pt}{15pt}\selectfont\strong\thispagestyle{fancy}}{\thechapter}{7.5pt}{}
+  
+%\titleformat{\chapter}[block]
+%  {\centering\fontsize{15pt}{15pt}\selectfont\strong}{\thechapter}{7.5pt}{}
 
 \titleformat{\section}[block]
   {\fontsize{14pt}{14pt}\selectfont\strong}
@@ -457,6 +459,16 @@
   \def\englishbooktitle{Doctoral Dissertation}
   \def\display@chineseheader{电子科技大学博士学位论文}
   \def\display@englishheader{Doctoral Dissertation of University of
+    Electronic Science and Technology of China}
+}
+
+\DeclareOption{postdoc}{
+  \def\chinesedegreename{博士后}
+  \def\englishdegreename{PostDoc}
+  \def\chinesebooktitle{博士后研究工作报告}
+  \def\englishbooktitle{Postdoctoral Research Report}
+  \def\display@chineseheader{电子科技大学博士后研究工作报告}
+  \def\display@englishheader{Postdoctoral Research Report of University of
     Electronic Science and Technology of China}
 }
 
@@ -883,6 +895,7 @@ School: & \en@theschool \\
   \clearpage{\thispagestyle{empty}\cleardoublepage}
   \addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
   \standardheader
+   \pagestyle{fancy} % <--- Add this line here
   \pagenumbering{arabic}
 }
 
@@ -1024,9 +1037,11 @@ School: & \en@theschool \\
 }
 
 \ifchinesebook{
-  \newcommand{\thesisaccomplishtitle}{攻读\chinesedegreename{}学位期间取得的成果}
+  \newcommand{\thesisaccomplishtitle}{博士期间发表的学术论文清单}
+  \newcommand{\thesispostdocaccomplishtitle}{博士后期间发表的学术论文清单}
   \newcommand{\thesisbibname}{参考文献}
 }{
+  \newcommand{\thesispostdocaccomplishtitle}{Research Results Obtained During the Study for \englishdegreename{} Degree}
   \newcommand{\thesisaccomplishtitle}{Research Results Obtained During the Study for \englishdegreename{} Degree}
   \newcommand{\thesisbibname}{References}
 }
@@ -1075,12 +1090,32 @@ School: & \en@theschool \\
 
 \newcites{accomplish}{\thesisaccomplishtitle}
 
+\newcites{postdocaccomplish}{\thesispostdocaccomplishtitle}
+
 \newenvironment{thesistheaccomplish}{
   \addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
   \renewcommand\thesection{\arabic{section}}
   \setcounter{section}{0}
   \nociteaccomplish{*}
   \renewcommand{\bibname}{\thesisaccomplishtitle}
+  \begin{thebibliography}{lo}
+  \interlinepenalty=10000
+  \setlength{\itemsep}{0bp}\setlength{\parskip}{0pt}
+  \begin{spacing}{1.667}
+  \thispagestyle{fancy}
+  \small
+}{
+  \end{spacing}
+  \end{thebibliography}
+  \renewcommand{\bibname}{\thesisbibname}
+}
+
+\newenvironment{thesisthepostdocaccomplish}{
+  \addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
+  \renewcommand\thesection{\arabic{section}}
+  \setcounter{section}{0}
+  \nocitepostdocaccomplish{*}
+  \renewcommand{\bibname}{博士后期间发表的学术论文清单}
   \begin{thebibliography}{lo}
   \interlinepenalty=10000
   \setlength{\itemsep}{0bp}\setlength{\parskip}{0pt}
@@ -1105,7 +1140,21 @@ School: & \en@theschool \\
   \renewcommand{\bibname}{\thesisbibname}
 }
 
+\newcommand{\thesispostdocloadaccomplish}[1]{
+  \nocitepostdocaccomplish{*}
+  \renewcommand{\bibname}{\thesispostdocaccomplishtitle}
+  \renewcommand{\bstlabelmark}{lo}
+  \thispagestyle{fancy}
+  \begin{spacing}{1.667}
+  \bibliographystylepostdocaccomplish{thesis-uestc} % <--- 已修正
+  \bibliographypostdocaccomplish{#1} % <--- 已修正
+  \end{spacing}
+  \renewcommand{\bibname}{\thesisbibname}
+}
+
 \newcommand{\thesisaccomplish}{\thesisloadaccomplish}
+
+\newcommand{\thesispostdocaccomplish}{\thesispostdocloadaccomplish}
 
 \newtheoremstyle{dotless}{0pt}{0pt}{\normalfont}{24pt}{\strong}{}{ }{}
 \theoremstyle{dotless}

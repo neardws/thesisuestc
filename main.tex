@@ -1,22 +1,77 @@
+\documentclass[postdoc]{thesis-uestc}
 
-\documentclass[master]{thesis-uestc}
+\makeatletter
 
-\title{时域积分方程时间步进算法及其快速算法}{The Time Marching Scheme of Time Domain
-    Integral Equation and Corresponding Fast Algorithm}
+% --- Part 1: 解决章节首页页眉缺失的问题 ---
+% 模板中 \chapter 命令会强制使用 fancy 页面样式。
+% 但为确保万无一失 (例如有浮动对象导致页面样式回退)，我们重新定义 plain 样式，
+% 使其与 fancy 样式外观一致。这是最稳妥的做法。
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \ifchinesebook{%
+    \fancyhead[CE]{\fontsize{10.5pt}{12.6pt}\selectfont\display@chineseheader}%
+    \fancyhead[CO]{\fontsize{10.5pt}{12.6pt}\selectfont\leftmark}%
+  }{%
+    \fancyhead[CE]{\fontsize{10.5pt}{12.6pt}\selectfont\nouppercase\display@englishheader}%
+    \fancyhead[CO]{\fontsize{10.5pt}{12.6pt}\selectfont\nouppercase\leftmark}%
+  }%
+  \fancyfoot[CE,CO]{\fontsize{9pt}{10.8pt}\selectfont\thepage}%
+}
 
-\author{王稳}{Wang Wen}
-\advisor{赖生建\chinesespace 副教授}{Dr. Shengjian Lai}
-\school{物理电子学院}{School of Physical Electronics}
-\major{无线电物理}{Radio Physics}
-\studentnumber{201421040223}
+% --- Part 2: 重新定义所有“书目”类环境的页眉行为 ---
+% 我们不再修补底层的 \thebibliography，而是直接重定义上层命令，
+% 确保每个列表在被调用时，都明确设置自己的页眉。
+
+% (A) 为“主要参考文献”设置页眉
+% 我们修改 \bibliography 命令，让它在执行时自动处理页眉
+\let\oldbib\bibliography
+\renewcommand{\bibliography}[1]{%
+    \clearpage
+    \markboth{\bibname}{\bibname}%
+    \oldbib{#1}%
+}
+% 注意：这个修改依赖于 `tocbibind` 包自动添加“参考文献”到目录并生成标题。
+% 模板中加载了 `\RequirePackage[nottoc]{tocbibind}`，标题由`\thebibliography`环境的`\chapter*`生成
+% 为了更稳定，我们直接修补\thebibliography
+\pretocmd{\thebibliography}{\markboth{\bibname}{\bibname}}{}{}
+
+
+% (B) 为“博士期间成果”设置页眉
+% 彻底重写 \thesisloadaccomplish 命令
+\renewcommand{\thesisloadaccomplish}[1]{
+    \clearpage
+    % \multibib 包会自动生成标题，我们只需要在它生成之前设置好页眉即可
+    \markboth{\thesisaccomplishtitle}{\thesisaccomplishtitle}
+    \nociteaccomplish{*}
+    \bibliographystyleaccomplish{thesis-uestc}
+    \bibliographyaccomplish{#1}
+    % 为了安全，在结束后重置页眉，以免影响后续内容
+    \clearpage
+    \markboth{\leftmark}{\leftmark}
+}
+
+% (C) 为“博士后期间成果”设置页眉
+% 彻底重写 \thesispostdocloadaccomplish 命令
+\renewcommand{\thesispostdocloadaccomplish}[1]{
+    \clearpage
+    \markboth{\thesispostdocaccomplishtitle}{\thesispostdocaccomplishtitle}
+    \nocitepostdocaccomplish{*}
+    \bibliographystylepostdocaccomplish{thesis-uestc}
+    \bibliographypostdocaccomplish{#1}
+    \clearpage
+    \markboth{\leftmark}{\leftmark}
+}
+
+\makeatother
 
 \begin{document}
 
-\makecover
+%\makecover
+\input{cover_pages/main_cover}
+\input{cover_pages/info_cover}
 
 \begin{chineseabstract}
 为了适应日益增长的宽带信号和非线性系统的工程应用，用于分析瞬态电磁散射问题的时域积分方程方法研究日趋活跃。本文以时域积分方程时间步进算法及其快速算法为研究课题，重点研究了时间步进算法的数值实现技术、后时稳定性问题以及两层平面波算法加速计算等，主要研究内容分为四部分。
-
 ……
 
 \chinesekeyword{时域电磁散射，时域积分方程，时间步进算法，后时不稳定性，时域平面波算法}
@@ -222,11 +277,11 @@ f(\bm{x}^{i};\bm{w})\cdot f(\bm{x}^{j};\bm{w}),\text{otherwise},
 \thesisacknowledgement
 在攻读博士学位期间，首先衷心感谢我的导师XXX教授
 
-\thesisappendix
-
-\chapter{中心极限定理的证明}
-
-\section{高斯分布和伯努利实验}
+%\thesisappendix
+%
+%\chapter{中心极限定理的证明}
+%
+%\section{高斯分布和伯努利实验}
 
 
 % Uncomment to list all the entries of the database.
@@ -242,13 +297,14 @@ f(\bm{x}^{i};\bm{w})\cdot f(\bm{x}^{j};\bm{w}),\text{otherwise},
 % \bibliographystyle{thesis-uestc}
 % \bibliography{reference}
 %
-
 \thesisaccomplish{publications}
 
-\thesistranslationoriginal
-\section{The OFDM Model of Multiple Carrier Waves}
+\thesispostdocaccomplish{publications}
 
-\thesistranslationchinese
-\section{基于多载波索引键控的正交频分多路复用系统模型}
+%\thesistranslationoriginal
+%\section{The OFDM Model of Multiple Carrier Waves}
+%
+%\thesistranslationchinese
+%\section{基于多载波索引键控的正交频分多路复用系统模型}
 
 \end{document}
